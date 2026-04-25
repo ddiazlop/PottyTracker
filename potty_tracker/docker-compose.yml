@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: potty_tracker_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_HOST: db
+      DATABASE_NAME: potty_tracker_dev
+      SECRET_KEY_BASE: your-secret-key-base-here
+      PHX_HOST: localhost
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/_build
+      - /app/deps
+    command: mix phx.server
+
+volumes:
+  postgres_data:
